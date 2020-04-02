@@ -69,7 +69,7 @@ def query_handler(call):
     """Re-conducting a coronavirus test."""
     if call.data == 'yes':
         bot.delete_message(call.message.chat.id, call.message.message_id)
-        # Удаляет предыдущий результат на коронавирус
+        # Removes previous coronavirus result.
         markup = telebot.types.InlineKeyboardMarkup()
         markup.add(telebot.types.InlineKeyboardButton(text='Проверить ещё раз',
                                                       callback_data='yes'))
