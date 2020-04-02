@@ -1,19 +1,17 @@
 import telebot
-from config import token
 from bs4 import BeautifulSoup
 import requests
 from random import randint
 
 
+token = ''
 bot = telebot.TeleBot(token)
 url_rf = 'https://index.minfin.com.ua/reference/coronavirus/geography/russia/'
-# разберись почему ты не можешь из файла конфиг вынести токен сюда
-# файловый ввод/вывод используй, но мб нагуглишь более красивый способ
 
 
 @bot.message_handler(commands=['start'])
 def first_message(message):
-    """Вывод приветсвия и показ команд."""
+    """Greeting and keyboard output."""
     keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     keyboard.row('Статистика по миру', 'Статистика по России')
     keyboard.row('Заражён ли я?')
@@ -23,7 +21,9 @@ def first_message(message):
 
 @bot.message_handler(regexp='Статистика по России')
 def stats_rf(message):
-    """Выводит статистику по коронавирусу с сайта МинФина, но по России."""
+    """ It displays statistics on coronavirus from the website of
+        the Ministry of Finance, but for Russia.
+    """
     requ_rf = requests.get(url_rf)
     soup = BeautifulSoup(requ_rf.content, 'html.parser')
     stats_all = soup.find('strong', class_='black').text
@@ -36,7 +36,9 @@ def stats_rf(message):
 
 @bot.message_handler(regexp='Статистика по миру')
 def stats_global(message):
-    """Выводит статистику по коронавирусу с сайта МинФина."""
+    """ Displays statistics on coronavirus from the website of
+        the Ministry of Finance.
+    """
     requ_gl = requests.get('https://index.minfin.com.ua/reference/coronavirus')
     soup = BeautifulSoup(requ_gl.content, 'html.parser')
     stats_all = soup.find('strong', class_='black').text
@@ -49,7 +51,7 @@ def stats_global(message):
 
 @bot.message_handler(regexp='Заражён ли я?')
 def corona_test(message):
-    """С шансом 50 на 50 показывает ваш результат на коронавирус."""
+    """With a 50 to 50 chance, it shows your result on coronavirus."""
     markup = telebot.types.InlineKeyboardMarkup()
     markup.add(telebot.types.InlineKeyboardButton(text='Проверить ещё раз',
                                                   callback_data='yes'))
@@ -64,7 +66,7 @@ def corona_test(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def query_handler(call):
-    """Заново проводит тест на коронавирус."""
+    """Re-conducting a coronavirus test."""
     if call.data == 'yes':
         bot.delete_message(call.message.chat.id, call.message.message_id)
         # Удаляет предыдущий результат на коронавирус
@@ -78,21 +80,20 @@ def query_handler(call):
         else:
             bot.send_message(call.message.chat.id, 'Сейчас - нет🦠',
                              reply_markup=markup)
-        # проводит тест на коронавирус
 
 
 @bot.message_handler(commands=['info'])
 def what(message):
-    """Информация о боте."""
+    """Information about the bot."""
     bot.send_message(message.chat.id, '🤑My bitcoin wallet🤑\
                                        1FLApcQPyJVmf3uevcN2JiXWpWD86xEVod')
 
 
 @bot.message_handler(content_types=['text'])
 def wrong_command(message):
-    """ffff."""
+    """Unknown message."""
     bot.send_message(message.chat.id, '???????????????????')
 
 
-if __name__ == '__main__':  # бесконечный цикл по типу while 0 == 0
+if __name__ == '__main__':
     bot.infinity_polling()
